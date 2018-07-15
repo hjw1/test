@@ -30,7 +30,7 @@ def read_data():
 
     # 读取文本，预处理，分词，得到词典
     raw_word_list = []
-    with open('doupocangqiong.txt',"r", encoding='UTF-8') as f:
+    with open('develop',"r", encoding='UTF-8') as f:
         line = f.readline()
         while line:
             while '\n' in line:
@@ -63,7 +63,7 @@ def build_dataset(words):
         if word in dictionary:
             index = dictionary[word]
         else:
-            index = 0  
+            index = 0
             unk_count += 1
         data.append(index)
     count[0][1] = unk_count
@@ -72,7 +72,7 @@ def build_dataset(words):
 
 data, count, dictionary, reverse_dictionary = build_dataset(words)
 #删除words节省内存
-del words  
+del words
 print('Most common words (+UNK)', count[:5])
 print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 
@@ -110,15 +110,15 @@ for i in range(8):
 
 # Step 4: Build and train a skip-gram model.
 batch_size = 128
-embedding_size = 128  
-skip_window = 1       
-num_skips = 2         
-valid_size = 9      #切记这个数字要和len(valid_word)对应，要不然会报错哦    
-valid_window = 100  
+embedding_size = 128
+skip_window = 1
+num_skips = 2
+valid_size = 9      #切记这个数字要和len(valid_word)对应，要不然会报错哦
+valid_window = 100
 num_sampled = 64    # Number of negative examples to sample.
 
 #验证集
-valid_word = ['萧炎','灵魂','火焰','萧薰儿','药老','天阶',"云岚宗","乌坦城","惊诧"]
+valid_word = ['单位','公司','书法','熊油']
 valid_examples =[dictionary[li] for li in valid_word]
 
 graph = tf.Graph()
@@ -145,10 +145,10 @@ with graph.as_default():
     # tf.nce_loss automatically draws a new sample of the negative labels each
     # time we evaluate the loss.
     loss = tf.reduce_mean(tf.nn.nce_loss(weights=nce_weights,
-                                         biases=nce_biases, 
-                                         inputs=embed, 
+                                         biases=nce_biases,
+                                         inputs=embed,
                                          labels=train_labels,
-                                         num_sampled=num_sampled, 
+                                         num_sampled=num_sampled,
                                          num_classes=vocabulary_size))
 
     # Construct the SGD optimizer using a learning rate of 1.0.
@@ -223,16 +223,16 @@ try:
     from sklearn.manifold import TSNE
     import matplotlib.pyplot as plt
     from matplotlib.font_manager import FontProperties
-    
+
     #为了在图片上能显示出中文
     font = FontProperties(fname=r"c:\windows\fonts\simsun.ttc", size=14)
-    
+
     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
     plot_only = 500
     low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
     labels = [reverse_dictionary[i] for i in xrange(plot_only)]
     plot_with_labels(low_dim_embs, labels,fonts=font)
-    
-    
+
+
 except ImportError:
     print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
